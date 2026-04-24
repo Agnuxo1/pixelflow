@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-_BACKENDS = {"cpu", "moderngl"}
+_BACKENDS = {"cpu", "moderngl", "cuda"}
 
 
 def get_backend(name: str) -> str:

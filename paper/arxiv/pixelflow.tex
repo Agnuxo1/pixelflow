@@ -1,0 +1,276 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{natbib}
+\usepackage{authblk}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue!60!black,
+    citecolor=blue!60!black,
+    urlcolor=blue!60!black,
+}
+
+\lstset{
+    basicstyle=\ttfamily\footnotesize,
+    breaklines=true,
+    frame=single,
+    backgroundcolor=\color{gray!5},
+    showstringspaces=false,
+}
+
+\title{\texttt{pixelflow}: GPU Texture Reservoir Computing via Fragment-Shader Cellular Automata}
+
+\author{Francisco Angulo de Lafuente}
+\affil{Independent Researcher \\ \texttt{lareliquia.angulo@gmail.com}}
+
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We present \texttt{pixelflow}, an open-source Python library for reservoir
+computing in which a 2D GPU texture serves as the reservoir substrate. Each
+pixel holds a four-channel state and evolves under a local cellular-automaton
+rule expressed as a fragment shader; the flattened final texture is used as a
+feature vector for a linear readout. This is a software analogue of physical
+reservoir computing and exploits the GPU's native strength in massively
+parallel per-pixel updates with local neighbourhood access. The library
+provides a CPU reference backend (NumPy) and a headless GPU backend (moderngl,
+OpenGL~3.3 core) that agree numerically within $10^{-5}$ absolute error. Three
+built-in cellular-automaton rules (Gray-Scott reaction-diffusion, continuous
+Life, and a discrete wave equation) and three input encoders (tile, phase,
+random projection) enable experimentation. We report honest benchmarks on
+MNIST digit classification and a synthetic two-moons task, including cases
+where the reservoir under-performs a raw-pixel linear baseline. \texttt{pixelflow}
+is released under Apache-2.0 at
+\url{https://github.com/Agnuxo1/pixelflow}.
+\end{abstract}
+
+\section{Introduction}
+
+Reservoir computing (RC) separates a dynamical system from a trainable
+readout: inputs are injected into a high-dimensional, generally random,
+dynamical reservoir, and only a simple linear model is fit to the reservoir's
+state \citep{jaeger2001,maass2002}. This paradigm has been instantiated in
+software (echo state networks, liquid state machines) and in physical
+substrates, including optical systems, memristive arrays, and spintronic
+devices \citep{tanaka2019}. Physical RC is attractive because it offloads the
+computationally expensive part (the recurrent dynamics) onto native hardware.
+
+This work proposes a GPU texture as a software-level reservoir. Modern GPUs
+are optimised for exactly the operations a cellular-automaton (CA) reservoir
+requires: sampling a local neighbourhood on a 2D grid and writing a per-pixel
+update. A fragment shader implementing a local rule expresses this directly,
+and ping-pong framebuffers provide efficient temporal iteration. The idea is
+simple, and the novelty here is not in the mathematics of CA reservoirs but
+in a clean, tested, and honest reference implementation that can serve as a
+baseline for further research.
+
+\section{Method}
+
+\subsection{State and dynamics}
+
+Let $S_t \in \mathbb{R}^{H \times W \times 4}$ denote the reservoir state at
+discrete time $t$. The initial state $S_0$ is derived from an input
+$\mathbf{x} \in \mathbb{R}^d$ by one of three encoders:
+
+\begin{itemize}
+    \item \textbf{tile}: $\mathbf{x}$ is reshaped to a $(H, W)$ grid
+    (nearest-neighbour resize) and placed in channel~0; remaining channels are
+    filled with small random noise.
+    \item \textbf{phase}: each scalar $x_i$ is mapped to $(\sin x_i, \cos x_i)$
+    in channels~0 and~1.
+    \item \textbf{project}: a fixed random Gaussian matrix
+    $W \in \mathbb{R}^{(HWC) \times d}$, seeded for reproducibility, projects
+    $\mathbf{x}$ to the full state tensor.
+\end{itemize}
+
+The update $S_{t+1} = \Phi(S_t)$ is implemented as a local operator with
+periodic boundary conditions. Three rule families are provided:
+
+\paragraph{Gray-Scott reaction-diffusion} Two channels encode concentrations
+$u, v$ obeying
+\begin{align}
+    \frac{\partial u}{\partial t} &= D_u \nabla^2 u - u v^2 + F(1 - u), \\
+    \frac{\partial v}{\partial t} &= D_v \nabla^2 v + u v^2 - (F + k) v,
+\end{align}
+discretised with a 5-point Laplacian and default parameters
+$F=0.055$, $k=0.062$, $D_u=0.16$, $D_v=0.08$, $\mathrm{d}t=1.0$.
+
+\paragraph{Continuous Life} A smoothed Conway's Life rule applied to channel
+0: a local average over a 3$\times$3 neighbourhood is passed through a
+threshold $\tau$ with optional additive noise.
+
+\paragraph{Discrete wave equation} Channel 0 holds amplitude $u$ and channel
+1 holds velocity $\dot u$, updated as
+\begin{align}
+    \dot u_{t+1} &= \gamma \dot u_t + c^2 \nabla^2 u_t, \\
+    u_{t+1} &= u_t + \mathrm{d}t \cdot \dot u_{t+1},
+\end{align}
+with damping $\gamma = 0.999$ by default.
+
+\subsection{Readout}
+
+After $k$ updates the feature vector $\phi(\mathbf{x}) = \mathrm{vec}(S_k) \in
+\mathbb{R}^{HWC}$ is fed to a linear model from scikit-learn
+\citep{pedregosa2011}: \texttt{Ridge}, \texttt{RidgeClassifier}, or
+\texttt{LogisticRegression}. Training is closed-form (Ridge) or convex
+(Logistic); no gradient flows through the reservoir.
+
+\subsection{Backends}
+
+Two interchangeable backends implement $\Phi$:
+
+\begin{itemize}
+    \item \textbf{CPU}: vectorised NumPy \citep{harris2020} using
+    \texttt{np.roll} for periodic neighbourhood access.
+    \item \textbf{moderngl}: headless OpenGL~3.3 core context,
+    \texttt{GL\_RGBA32F} textures, ping-pong framebuffers, one fragment shader
+    per rule.
+\end{itemize}
+
+Parity is verified by \texttt{tests/test\_moderngl\_backend.py}: for each rule,
+the CPU and GPU outputs on an $8{\times}8{\times}4$ random state after 5 steps
+agree to $< 10^{-5}$ absolute error. GPU determinism across repeated runs is
+also tested.
+
+\section{Experiments}
+
+All numbers below are produced by scripts in the repository's
+\texttt{benchmarks/} directory and stored as JSON with metadata (hardware,
+config, timings) in \texttt{benchmarks/results/}. We report raw numbers,
+including cases where the reservoir is outperformed by a raw-pixel linear
+baseline.
+
+\subsection{Synthetic: two-moons}
+
+A 500-training / 200-test two-moons dataset ($\mathrm{noise}=0.2$) with a
+$16{\times}16{\times}4$ reservoir, 5 steps of \texttt{diffusion\_reaction} and
+\texttt{project} encoding, followed by \texttt{RidgeReadout}, reaches
+test accuracy \textbf{0.92}.
+
+\subsection{MNIST (subset 3\,000)}
+
+Quick smoke runs with a $32{\times}32{\times}4$ reservoir:
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lccc}
+\toprule
+Rule           & Steps & Test acc. & Baseline (raw+LogReg) \\
+\midrule
+\texttt{wave}              & 4 & 0.879 & 0.886 \\
+\texttt{life\_like}        & 6 & 0.348 & 0.886 \\
+\bottomrule
+\end{tabular}
+\caption{MNIST 3\,000-sample subset, tile encoding. The \texttt{life\_like}
+rule saturates and destroys the digit signal at these parameters; the
+\texttt{wave} rule preserves it and nearly matches the baseline.}
+\end{table}
+
+\subsection{MNIST (full 60\,000 / 10\,000 split)}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lcccc}
+\toprule
+Rule                  & Grid          & Steps & Test acc. & Baseline (raw+LogReg) \\
+\midrule
+\texttt{wave}              & $32{\times}32{\times}4$ & 4 & \textbf{0.9281} & 0.9261 \\
+\texttt{diffusion\_reaction} & $32{\times}32{\times}4$ & 8 & 0.9213 & 0.9261 \\
+\bottomrule
+\end{tabular}
+\caption{MNIST full 60k training / 10k test split, tile encoding, \texttt{cpu}
+backend, \texttt{RidgeClassifier} readout. Raw JSON artifacts with timings and
+hardware metadata are in \texttt{benchmarks/results/}. The \texttt{wave}
+reservoir slightly beats the raw-pixel baseline; \texttt{diffusion\_reaction} at
+the chosen parameters slightly underperforms it. No hyperparameter search was
+run: these are first-order honest numbers.}
+\label{tab:mnist60k}
+\end{table}
+
+\subsection{Eikonal equation}
+
+The repository includes a reference fast-marching Eikonal solver against which
+the \texttt{wave} reservoir's arrival-time field can be compared. A full
+quantitative study is left for future work.
+
+\section{Limitations}
+
+\begin{enumerate}
+    \item \textbf{No attempt to beat deep CNNs.} A standard CNN exceeds 99\%
+    accuracy on MNIST; the point of \texttt{pixelflow} is dynamics and
+    reproducibility, not leaderboard chasing.
+    \item \textbf{GPU overhead dominates for small inputs.} The moderngl
+    backend is slower than CPU for batches $< 1000$ on $< 32{\times}32$
+    grids due to standalone-context creation. A shared-context v0.2 mitigates
+    this; the current version accepts the honest cost.
+    \item \textbf{Fixed CA rules.} Learned reservoirs, in the style of
+    \citet{mordvintsev2020}, are future work.
+\end{enumerate}
+
+\section{Reproducibility}
+
+Every benchmark script prints its config and writes a timestamped JSON with
+the exact parameters, random seed, and hardware identification. Seeds are
+fixed in all tests and examples. The full test suite
+(\texttt{pytest tests/}) comprises 44~tests that run on CI across
+Linux/macOS/Windows and Python~3.10/3.11/3.12.
+
+\section{Conclusion}
+
+\texttt{pixelflow} distils a single clean idea --- fragment-shader CA as a
+reservoir substrate with a linear readout --- into a tested, honest, and
+reusable library. It is not a new deep-learning state of the art, and it is
+not claimed to be. It is a clean testbed for reservoir-computing research
+that happens to run fast on commodity GPUs.
+
+\section*{Availability}
+
+Source, tests, benchmarks, and documentation are available at
+\url{https://github.com/Agnuxo1/pixelflow} under the Apache-2.0 licence.
+
+\begin{thebibliography}{10}
+
+\bibitem[Jaeger(2001)]{jaeger2001}
+Jaeger, H.\ (2001). \textit{The ``echo state'' approach to analysing and
+training recurrent neural networks.} GMD Report 148, German National Research
+Center for Information Technology.
+
+\bibitem[Maass et~al.(2002)]{maass2002}
+Maass, W., Natschläger, T., \& Markram, H.\ (2002). Real-time computing without
+stable states: A new framework for neural computation based on perturbations.
+\textit{Neural Computation}, 14(11), 2531--2560.
+
+\bibitem[Tanaka et~al.(2019)]{tanaka2019}
+Tanaka, G., Yamane, T., Héroux, J.~B., Nakane, R., Kanazawa, N., Takeda, S.,
+Numata, H., Nakano, D., \& Hirose, A.\ (2019). Recent advances in physical
+reservoir computing: A review. \textit{Neural Networks}, 115, 100--123.
+
+\bibitem[Pedregosa et~al.(2011)]{pedregosa2011}
+Pedregosa, F.\ et al.\ (2011). Scikit-learn: Machine learning in Python.
+\textit{JMLR}, 12, 2825--2830.
+
+\bibitem[Harris et~al.(2020)]{harris2020}
+Harris, C.~R.\ et al.\ (2020). Array programming with NumPy.
+\textit{Nature}, 585, 357--362.
+
+\bibitem[Mordvintsev et~al.(2020)]{mordvintsev2020}
+Mordvintsev, A., Randazzo, E., Niklasson, E., \& Levin, M.\ (2020). Growing
+neural cellular automata. \textit{Distill}.
+
+\end{thebibliography}
+
+\end{document}

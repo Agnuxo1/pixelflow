@@ -27,9 +27,10 @@ dependencies = [
 
 [project.optional-dependencies]
 gpu = ["moderngl>=5.10", "glfw>=2.6"]
+cuda = ["cupy-cuda12x>=13.0"]
 datasets = ["torchvision>=0.16", "pillow>=10.0"]
 dev = ["pytest>=7.4", "pytest-cov>=4.1", "ruff>=0.5", "black>=24.0"]
-all = ["pixelflow[gpu,datasets,dev]"]
+all = ["pixelflow[gpu,cuda,datasets,dev]"]
 
 [project.urls]
 Homepage = "https://github.com/Agnuxo1/pixelflow"

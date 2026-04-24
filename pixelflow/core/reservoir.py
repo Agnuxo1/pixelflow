@@ -41,8 +41,19 @@ class Reservoir:
                     "moderngl backend requires 'moderngl' to be installed. "
                     "Install with: pip install moderngl"
                 ) from exc
+        elif backend == "cuda":
+            try:
+                import cupy  # noqa: F401
+            except ImportError as exc:
+                raise ImportError(
+                    "cuda backend requires cupy to be installed. "
+                    "Install with: pip install cupy-cuda12x  "
+                    "(or cupy-cuda13x if your toolkit is CUDA 13)"
+                ) from exc
         elif backend != "cpu":
-            raise ValueError(f"Unknown backend '{backend}'. Choose 'cpu' or 'moderngl'.")
+            raise ValueError(
+                f"Unknown backend '{backend}'. Choose 'cpu', 'moderngl', or 'cuda'."
+            )
 
         self.config = config
         self.backend = backend
@@ -67,6 +78,11 @@ class Reservoir:
         if self.backend == "cpu":
             from pixelflow.backends.cpu import run_cpu_with_params
             runner = run_cpu_with_params
+        elif self.backend == "cuda":
+            from pixelflow.backends.cuda_backend import run_cuda
+
+            def runner(initial, rule, params, steps, rng):
+                return run_cuda(initial, rule, steps, rng, rule_params=params)
         else:
             from pixelflow.backends.moderngl_backend import run_moderngl
 

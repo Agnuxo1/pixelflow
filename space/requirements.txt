@@ -1,0 +1,7 @@
+gradio>=4.44
+numpy>=1.24
+scikit-learn>=1.3
+scipy>=1.11
+matplotlib>=3.7
+pillow>=10.0
+git+https://github.com/Agnuxo1/pixelflow.git

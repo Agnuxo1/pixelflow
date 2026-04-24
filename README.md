@@ -8,6 +8,9 @@ readout on top for image classification, PDE solving, and time-series tasks.
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue)](https://www.python.org/)
 [![Status](https://img.shields.io/badge/status-alpha-orange)]()
+[![HF Space](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Space-yellow)](https://huggingface.co/spaces/Agnuxo1/pixelflow)
+
+> **Live demo:** <https://huggingface.co/spaces/Agnuxo1/pixelflow>
 
 > **Status: v0.1.0 alpha.** The core is functional and tested; performance work
 > and extra backends are in progress. This library is research software — it does
@@ -42,7 +45,8 @@ Three built-in rules:
 
 ```bash
 pip install pixelflow              # core + CPU backend
-pip install pixelflow[gpu]         # adds moderngl + glfw for the GPU backend
+pip install pixelflow[gpu]         # adds moderngl + glfw (OpenGL 3.3 GPU backend)
+pip install pixelflow[cuda]        # adds cupy-cuda12x (CUDA backend)
 pip install pixelflow[datasets]    # adds torchvision / pillow for dataset loaders
 pip install pixelflow[all]         # everything
 ```
@@ -82,15 +86,27 @@ python examples/quickstart.py
 - **`cpu`** — pure NumPy. Always available. Reference implementation.
 - **`moderngl`** — headless OpenGL 3.3 core via moderngl. Requires a GPU with
   working OpenGL drivers. Install with `pip install pixelflow[gpu]`.
+- **`cuda`** — CuPy-backed CUDA implementation. Requires an NVIDIA GPU and
+  matching CUDA toolkit (12.x or 13.x). Install with
+  `pip install pixelflow[cuda]`.
 
-CPU and GPU backends produce numerically equivalent outputs (max abs diff
-< 1e-3) under the same config, verified in `tests/test_moderngl_backend.py`.
+All three backends produce numerically equivalent outputs (CPU vs moderngl:
+max abs diff < 1e-5; CPU vs CUDA: max abs diff < 1e-3), verified in
+`tests/test_moderngl_backend.py` and `tests/test_cuda_backend.py`.
 
 ## Benchmarks
 
-See `benchmarks/`. Results on the author's machine (RTX 3090 + Ryzen 5950X) are
-reported in each script's docstring and in `benchmarks/results/` as JSON
-artifacts. Numbers are measured, not claimed.
+Real measured results on MNIST (60k train / 10k test, `cpu` backend, Windows
+10 + Python 3.13, raw JSON under `benchmarks/results/`):
+
+| Rule | Grid | Steps | Test acc. | Raw-pixel baseline |
+|---|---|---|---|---|
+| `wave` | 32×32×4 | 4 | **0.9281** | 0.9261 |
+| `diffusion_reaction` | 32×32×4 | 8 | 0.9213 | 0.9261 |
+
+The `wave` reservoir slightly beats the raw-pixel LogReg baseline at these
+first-order settings; no hyperparameter search was run. All numbers are
+measured, not claimed. Losses are reported as-is.
 
 ## Why bother?
 
