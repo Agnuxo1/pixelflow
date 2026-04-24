@@ -67,22 +67,56 @@ class Reservoir:
         return c.height * c.width * c.channels
 
     def transform(self, X: np.ndarray) -> np.ndarray:
-        """X: (N, D_in) float array. Returns (N, feature_dim) float32 features."""
+        """X: (N, D_in) float array. Returns (N, feature_dim) float32 features.
+
+        For the ``cuda`` backend all N samples are encoded on CPU first (each
+        with its own deterministic RNG seed), then the full (N, H, W, C) batch
+        is transferred to GPU in one shot, evolved for ``steps`` iterations,
+        and copied back once.  This amortises host<->device transfer overhead
+        and lets cupy process all N samples with a single set of kernel
+        launches per step.
+
+        For ``cpu`` and ``moderngl`` backends the original per-sample loop is
+        preserved (no benefit from batching on those backends).
+        """
         X = np.asarray(X, dtype=np.float32)
         if X.ndim == 1:
             X = X[np.newaxis, :]
 
         c = self.config
-        features = np.empty((len(X), self.feature_dim), dtype=np.float32)
+        N = len(X)
+        features = np.empty((N, self.feature_dim), dtype=np.float32)
 
+        if self.backend == "cuda":
+            from pixelflow.backends.cuda_backend import run_cuda_batch
+
+            # Phase 1: encode all samples on CPU (preserves per-sample seeding).
+            initial_states = np.empty(
+                (N, c.height, c.width, c.channels), dtype=np.float32
+            )
+            for i, x in enumerate(X):
+                rng_enc = np.random.default_rng([c.seed, i])
+                initial_states[i] = self._encoder(
+                    x, c.height, c.width, c.channels, rng_enc
+                )
+
+            # Phase 2: run all steps on GPU as a single 4D batch.
+            # rng passed for API parity; GPU path does not use it.
+            rng_evo = np.random.default_rng([c.seed, 0, 1])
+            finals = run_cuda_batch(
+                initial_states, self._rule, c.steps, rng_evo,
+                rule_params=c.rule_params,
+            )  # (N, H, W, C)
+
+            for i in range(N):
+                features[i] = finals[i].ravel()
+
+            return features
+
+        # --- CPU / moderngl: original per-sample loop ---
         if self.backend == "cpu":
             from pixelflow.backends.cpu import run_cpu_with_params
             runner = run_cpu_with_params
-        elif self.backend == "cuda":
-            from pixelflow.backends.cuda_backend import run_cuda
-
-            def runner(initial, rule, params, steps, rng):
-                return run_cuda(initial, rule, steps, rng, rule_params=params)
         else:
             from pixelflow.backends.moderngl_backend import run_moderngl
 

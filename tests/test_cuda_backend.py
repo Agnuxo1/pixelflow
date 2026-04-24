@@ -157,3 +157,82 @@ def test_run_cuda_bad_shape() -> None:
 
     with pytest.raises(ValueError):
         run_cuda(bad_state, rule, 1, rng)
+
+
+# ---------------------------------------------------------------------------
+# Batched mode tests (v0.3)
+# ---------------------------------------------------------------------------
+
+@pytest.mark.parametrize("rule_name", ["diffusion_reaction", "life_like", "wave"])
+def test_batch_matches_per_sample(rule_name: str) -> None:
+    """run_cuda_batch on N=4 must match 4 separate run_cuda calls (max diff < 1e-5)."""
+    from pixelflow.backends.cuda_backend import run_cuda, run_cuda_batch
+    from pixelflow.core.rules import get_rule
+
+    rule  = get_rule(rule_name)
+    rng   = np.random.default_rng(99)
+    steps = 3
+
+    batch = rng.random((4, 8, 8, 4)).astype(np.float32)
+
+    batched_out = run_cuda_batch(batch, rule, steps, rng)
+
+    for i in range(4):
+        per_sample_out = run_cuda(batch[i], rule, steps, rng)
+        diff = np.max(np.abs(batched_out[i] - per_sample_out))
+        assert diff < 1e-5, (
+            f"rule={rule_name} sample {i}: batched vs per-sample max diff = {diff:.2e}"
+        )
+
+
+@pytest.mark.parametrize("rule_name", ["diffusion_reaction", "wave"])
+def test_batch_cpu_parity(rule_name: str) -> None:
+    """Reservoir.transform with cuda backend must match cpu backend (max diff < 1e-3)."""
+    from pixelflow.core.reservoir import Reservoir, ReservoirConfig
+
+    cfg = ReservoirConfig(
+        width=8, height=8, channels=4, steps=3,
+        rule=rule_name, seed=7,
+    )
+    rng = np.random.default_rng(0)
+    X = rng.standard_normal((4, 16)).astype(np.float32)
+
+    res_cpu  = Reservoir(cfg, backend="cpu")
+    res_cuda = Reservoir(cfg, backend="cuda")
+
+    out_cpu  = res_cpu.transform(X)
+    out_cuda = res_cuda.transform(X)
+
+    diff = np.max(np.abs(out_cpu - out_cuda))
+    assert diff < 1e-3, (
+        f"rule={rule_name}: cpu vs cuda batch max diff = {diff:.6f} (threshold 1e-3)"
+    )
+
+
+def test_batch_determinism() -> None:
+    """Two identical run_cuda_batch calls must produce bitwise-identical output."""
+    from pixelflow.backends.cuda_backend import run_cuda_batch
+    from pixelflow.core.rules import get_rule
+
+    rule  = get_rule("diffusion_reaction")
+    rng   = np.random.default_rng(5)
+    batch = rng.random((4, 8, 8, 4)).astype(np.float32)
+
+    out1 = run_cuda_batch(batch, rule, 5, rng)
+    out2 = run_cuda_batch(batch, rule, 5, rng)
+
+    np.testing.assert_array_equal(out1, out2,
+        err_msg="run_cuda_batch is not deterministic across two calls"
+    )
+
+
+def test_run_cuda_batch_bad_shape() -> None:
+    """run_cuda_batch must raise ValueError for wrong input shape."""
+    from pixelflow.backends.cuda_backend import run_cuda_batch
+    from pixelflow.core.rules import get_rule
+
+    rule = get_rule("wave")
+    rng  = np.random.default_rng(0)
+
+    with pytest.raises(ValueError):
+        run_cuda_batch(np.zeros((4, 8, 8, 3), dtype=np.float32), rule, 1, rng)

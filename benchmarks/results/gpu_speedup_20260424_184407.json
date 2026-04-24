@@ -1,0 +1,31 @@
+{
+  "timestamp": "20260424_184407",
+  "config": {
+    "rule": "wave",
+    "width": 32,
+    "height": 32,
+    "steps": 16,
+    "n": 2000,
+    "d_in": 64
+  },
+  "times_s": {
+    "cpu": 2.134153,
+    "moderngl": 46.490674,
+    "cuda": 0.173436
+  },
+  "ms_per_sample": {
+    "cpu": 1.0671,
+    "moderngl": 23.2453,
+    "cuda": 0.0867
+  },
+  "speedup_vs_cpu": {
+    "cpu": 1.0,
+    "moderngl": 0.0459,
+    "cuda": 12.3051
+  },
+  "notes": {
+    "cpu": "",
+    "moderngl": "",
+    "cuda": ""
+  }
+}

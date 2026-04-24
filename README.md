@@ -96,17 +96,49 @@ max abs diff < 1e-5; CPU vs CUDA: max abs diff < 1e-3), verified in
 
 ## Benchmarks
 
-Real measured results on MNIST (60k train / 10k test, `cpu` backend, Windows
-10 + Python 3.13, raw JSON under `benchmarks/results/`):
+All numbers below are measured (raw JSON under `benchmarks/results/`) on
+Windows 10 + Python 3.13, RTX 3090 + Ryzen 5950X. Losses vs. baseline are
+reported as-is, never hidden.
+
+### MNIST (60k train / 10k test)
+
+| Rule | Grid | Steps | Backend | Transform time | Test acc. | Raw-pixel baseline |
+|---|---|---|---|---|---|---|
+| `wave` | 32×32×4 | 4 | `cpu` | 24.15 s | **0.9281** | 0.9261 |
+| `wave` | 32×32×4 | 4 | `cuda` (batched) | **5.81 s** (4.2× faster) | 0.9281 | 0.9261 |
+| `diffusion_reaction` | 32×32×4 | 8 | `cpu` | 72.43 s | 0.9213 | 0.9261 |
+
+### GPU speedup (batched CUDA v0.3, RTX 3090)
+
+| Workload | CPU | moderngl | CUDA batched | Speedup vs CPU |
+|---|---|---|---|---|
+| N=1000, 64×64, 32 steps, `diffusion_reaction` | 5.00 s | 25.95 s | **0.28 s** | **17.95×** |
+| N=2000, 32×32, 16 steps, `wave` | 2.13 s | 46.49 s | **0.17 s** | **12.32×** |
+
+### CIFAR-10 (10k grayscale subset)
 
 | Rule | Grid | Steps | Test acc. | Raw-pixel baseline |
 |---|---|---|---|---|
-| `wave` | 32×32×4 | 4 | **0.9281** | 0.9261 |
-| `diffusion_reaction` | 32×32×4 | 8 | 0.9213 | 0.9261 |
+| `wave` | 32×32×4 | 6 | 0.2430 | 0.2521 |
 
-The `wave` reservoir slightly beats the raw-pixel LogReg baseline at these
-first-order settings; no hyperparameter search was run. All numbers are
-measured, not claimed. Losses are reported as-is.
+Honest negative result: on grayscale CIFAR-10 with a 10k subset, the reservoir
+slightly underperforms the raw-pixel baseline. RGB + colour-aware encoding is
+a follow-up experiment.
+
+### Eikonal equation (reference vs wave reservoir)
+
+Mean relative arrival-time error of the `wave` reservoir against a
+fast-marching reference (constant-speed field, variable source):
+
+| Grid | Source | Speed field | Mean rel. err. |
+|---|---|---|---|
+| 32×32 | center | constant | 0.064 |
+| 64×64 | center | constant | 0.066 |
+| 64×64 | off-center | constant | 0.313 |
+| 64×64 | center | radial | 0.047 |
+
+The reservoir is a crude wave simulator, not an Eikonal solver — the 30% error
+near boundaries is expected and documented.
 
 ## Why bother?
 
