@@ -1,0 +1,22 @@
+{
+  "timestamp": "2026-04-24T11:34:15.529139+00:00",
+  "platform": "Windows-10-10.0.19045-SP0",
+  "python": "3.13.7",
+  "config": {
+    "subset": 3000,
+    "backend": "cpu",
+    "width": 32,
+    "height": 32,
+    "steps": 4,
+    "rule": "wave",
+    "seed": 0
+  },
+  "load_time_s": 6.060426999989431,
+  "baseline_acc": 0.8861,
+  "baseline_fit_time_s": 2.9522801999992225,
+  "reservoir_transform_train_s": 1.1034795999876224,
+  "reservoir_transform_test_s": 3.8171948999806773,
+  "readout_fit_s": 2.994902100006584,
+  "reservoir_acc": 0.8789,
+  "verdict": "baseline_beats_reservoir"
+}
