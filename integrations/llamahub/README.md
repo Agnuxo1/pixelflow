@@ -1,9 +1,14 @@
 # PixelflowReservoirPack
 
-**Experimental research integration.** A LlamaHub pack that wraps a
-[pixelflow](https://github.com/franciscoangulo/pixelflow) GPU-texture
-reservoir as a feature extractor you can bolt onto any LlamaIndex
-embedding pipeline. The reservoir lifts dense embeddings into a higher
+**Experimental research integration.** A feature-extractor class that wraps
+a [pixelflow](https://github.com/Agnuxo1/pixelflow) GPU-texture reservoir
+so it can be bolted onto any LlamaIndex (or plain numpy) embedding pipeline.
+
+> **Note on llama-packs.** This directory is named ``llamahub/`` for
+> historical reasons. The ``BaseLlamaPack`` abstraction was removed from
+> ``llama-index-core`` in the 0.12 restructure, so ``PixelflowReservoirPack``
+> is now a standalone class with the same ``get_modules()`` / ``run()``
+> surface — ``llama-index`` is an optional runtime dependency only. The reservoir lifts dense embeddings into a higher
 dimensional, dynamically-evolved feature space; a small linear readout
 (e.g. `RidgeReadout`) is then enough to classify.
 

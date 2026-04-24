@@ -21,10 +21,19 @@ status and links. No aspirational entries — only things actually done.
 
 | Channel | Artifact | Notes |
 |---|---|---|
-| awesome-reservoir-computing | Entry drafted in `integrations/awesome-entries.md` | Needs PR to the list repo |
-| awesome-local-ai | Entry drafted | Needs PR |
-| LlamaIndex LlamaHub | Pack under `integrations/llamahub/` | Needs PR to `run-llama/llama_index` |
-| Open WebUI tools | Tool under `integrations/open-webui/` | Needs listing on openwebui.com |
+| LlamaIndex adapter | `integrations/llamahub/` | End-to-end smoke test passing against `llama-index-core` 0.12+. Standalone class, no upstream PR needed — can be distributed via PyPI `pixelflow-rc` directly. |
+| Open WebUI tool | `integrations/open-webui/` | End-to-end smoke test passing. Upload to openwebui.com via the tool-creator UI — no automated API, manual step for user. |
+
+## Investigated and deliberately skipped
+
+| Channel | Reason |
+|---|---|
+| `reservoirpy/awesome-reservoir-computing` | Last push 2021-11, effectively abandoned. |
+| `janhq/awesome-local-ai` | LLM-centric; pixelflow is not an LLM tool. Submitting would be spam. |
+| `open-neuromorphic/open-neuromorphic` | Curated SNN list with a strict table/image format; pixelflow is reservoir computing, not SNN — off-topic. |
+| LangChain / CrewAI / Haystack wrappers | Trivial wrapper with no real value beyond the LlamaIndex adapter. Would pad the project without substance. |
+| LlamaHub PR to `run-llama/llama_index` | `BaseLlamaPack` removed in 0.12 restructure; packs as a concept are deprecated upstream. Proper `llama-index-integrations` PR is a multi-day effort with CI constraints — not worth half-baking. |
+| VS Code / JetBrains / Chrome extensions | No meaningful UI surface for a numeric research library. Won't submit placeholder extensions. |
 
 ## Deferred (require user credentials or review)
 

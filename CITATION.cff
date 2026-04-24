@@ -1,0 +1,20 @@
+cff-version: 1.2.0
+message: "If you use pixelflow in research, please cite it as below."
+title: "pixelflow: GPU Texture Reservoir Computing"
+authors:
+  - family-names: "Angulo de Lafuente"
+    given-names: "Francisco"
+    email: "lareliquia.angulo@gmail.com"
+    orcid: "https://orcid.org/0000-0000-0000-0000"
+version: "0.3.0"
+date-released: "2026-04-24"
+license: Apache-2.0
+repository-code: "https://github.com/Agnuxo1/pixelflow"
+keywords:
+  - reservoir-computing
+  - gpu
+  - opengl
+  - cuda
+  - cellular-automata
+  - neuromorphic
+  - machine-learning
