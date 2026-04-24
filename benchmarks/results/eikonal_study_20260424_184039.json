@@ -1,0 +1,58 @@
+{
+  "timestamp": "2026-04-24T16:40:39.811494+00:00",
+  "platform": "Windows-10-10.0.19045-SP0",
+  "cases": [
+    {
+      "size": 32,
+      "source": [
+        16,
+        16
+      ],
+      "steps": 40,
+      "speed": "constant",
+      "ref_time_s": 0.006739499978721142,
+      "wave_time_s": 0.00451450000400655,
+      "mean_relative_error": 0.06366809136313212,
+      "valid_cells": 1024
+    },
+    {
+      "size": 64,
+      "source": [
+        32,
+        32
+      ],
+      "steps": 80,
+      "speed": "constant",
+      "ref_time_s": 0.025780600000871345,
+      "wave_time_s": 0.010361399996327236,
+      "mean_relative_error": 0.06606501687279279,
+      "valid_cells": 4096
+    },
+    {
+      "size": 64,
+      "source": [
+        10,
+        10
+      ],
+      "steps": 100,
+      "speed": "constant",
+      "ref_time_s": 0.024912299995776266,
+      "wave_time_s": 0.012704900000244379,
+      "mean_relative_error": 0.31271920064696024,
+      "valid_cells": 4096
+    },
+    {
+      "size": 64,
+      "source": [
+        32,
+        32
+      ],
+      "steps": 80,
+      "speed": "radial",
+      "ref_time_s": 0.024869399989256635,
+      "wave_time_s": 0.010268799989717081,
+      "mean_relative_error": 0.04664012601379745,
+      "valid_cells": 4096
+    }
+  ]
+}

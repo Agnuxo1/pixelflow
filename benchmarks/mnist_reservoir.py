@@ -26,7 +26,7 @@ from pixelflow.tasks.mnist import load as load_mnist
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--subset", type=int, default=10000)
-    parser.add_argument("--backend", choices=["cpu", "moderngl"], default="cpu")
+    parser.add_argument("--backend", choices=["cpu", "moderngl", "cuda"], default="cpu")
     parser.add_argument("--width", type=int, default=32)
     parser.add_argument("--height", type=int, default=32)
     parser.add_argument("--steps", type=int, default=8)
