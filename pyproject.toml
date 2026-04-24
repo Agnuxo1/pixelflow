@@ -3,8 +3,8 @@ requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "pixelflow"
-version = "0.1.0"
+name = "pixelflow-rc"
+version = "0.3.0"
 description = "GPU Texture Reservoir Computing: fragment-shader cellular automata with linear readouts for image classification and PDE solving."
 readme = "README.md"
 license = { text = "Apache-2.0" }
