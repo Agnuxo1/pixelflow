@@ -10,12 +10,16 @@ from typing import Any, Dict, List, Optional
 
 import numpy as np
 
-from llama_index.core.llama_pack.base import BaseLlamaPack
-
 from pixelflow import Reservoir, ReservoirConfig, RidgeReadout
 
+# ``BaseLlamaPack`` was removed from llama_index.core in the 0.12 restructure;
+# llama-packs as a concept are deprecated. We keep the same get_modules() /
+# run() surface so existing pack users can migrate by dropping the import and
+# constructing this class directly. Works standalone — llama_index is an
+# optional runtime dep only.
 
-class PixelflowReservoirPack(BaseLlamaPack):
+
+class PixelflowReservoirPack:
     """Reservoir-computing feature extractor as a LlamaHub pack.
 
     Parameters
