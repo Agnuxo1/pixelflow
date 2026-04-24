@@ -184,28 +184,87 @@ rule saturates and destroys the digit signal at these parameters; the
 
 \begin{table}[h]
 \centering
-\begin{tabular}{lcccc}
+\begin{tabular}{lccccc}
 \toprule
-Rule                  & Grid          & Steps & Test acc. & Baseline (raw+LogReg) \\
+Rule                  & Grid          & Steps & Backend & Transform time & Test acc. \\
 \midrule
-\texttt{wave}              & $32{\times}32{\times}4$ & 4 & \textbf{0.9281} & 0.9261 \\
-\texttt{diffusion\_reaction} & $32{\times}32{\times}4$ & 8 & 0.9213 & 0.9261 \\
+\texttt{wave}              & $32{\times}32{\times}4$ & 4 & \texttt{cpu}            & 24.15~s             & \textbf{0.9281} \\
+\texttt{wave}              & $32{\times}32{\times}4$ & 4 & \texttt{cuda} (batched) & \textbf{5.81~s} ($4.2\times$) & 0.9281 \\
+\texttt{diffusion\_reaction} & $32{\times}32{\times}4$ & 8 & \texttt{cpu}          & 72.43~s             & 0.9213 \\
 \bottomrule
 \end{tabular}
-\caption{MNIST full 60k training / 10k test split, tile encoding, \texttt{cpu}
-backend, \texttt{RidgeClassifier} readout. Raw JSON artifacts with timings and
-hardware metadata are in \texttt{benchmarks/results/}. The \texttt{wave}
-reservoir slightly beats the raw-pixel baseline; \texttt{diffusion\_reaction} at
-the chosen parameters slightly underperforms it. No hyperparameter search was
-run: these are first-order honest numbers.}
+\caption{MNIST full 60k training / 10k test split, tile encoding,
+\texttt{RidgeClassifier} readout; raw-pixel $+$ LogReg baseline is 0.9261. Raw
+JSON artifacts with timings and hardware metadata are in
+\texttt{benchmarks/results/}. The \texttt{wave} reservoir slightly beats the
+raw-pixel baseline at both backends; the batched CUDA backend (v0.3) matches
+the CPU accuracy at $4.2\times$ lower transform time.
+\texttt{diffusion\_reaction} at the chosen parameters slightly underperforms the
+baseline. No hyperparameter search was run: these are first-order honest
+numbers.}
 \label{tab:mnist60k}
+\end{table}
+
+\subsection{GPU speedup (batched CUDA v0.3, RTX 3090)}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lcccc}
+\toprule
+Workload & CPU & \texttt{moderngl} & CUDA batched & Speedup vs CPU \\
+\midrule
+$N{=}1000$, $64{\times}64$, 32 steps, \texttt{diffusion\_reaction} & 5.00~s & 25.95~s & \textbf{0.28~s} & \textbf{17.95$\times$} \\
+$N{=}2000$, $32{\times}32$, 16 steps, \texttt{wave}                & 2.13~s & 46.49~s & \textbf{0.17~s} & \textbf{12.32$\times$} \\
+\bottomrule
+\end{tabular}
+\caption{End-to-end transform time for the three backends on an RTX~3090 +
+Ryzen 5950X. The batched CUDA backend (v0.3) amortises host/device transfers
+across the entire batch and outperforms both NumPy and the
+standalone-context \texttt{moderngl} path by an order of magnitude.}
+\label{tab:gpuspeedup}
+\end{table}
+
+\subsection{CIFAR-10 (grayscale 10k subset)}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lcccc}
+\toprule
+Rule & Grid & Steps & Test acc. & Baseline (raw+LogReg) \\
+\midrule
+\texttt{wave} & $32{\times}32{\times}4$ & 6 & 0.2430 & 0.2521 \\
+\bottomrule
+\end{tabular}
+\caption{Honest negative result: on a 10k grayscale CIFAR-10 subset the
+\texttt{wave} reservoir slightly underperforms the raw-pixel linear baseline.
+RGB input with colour-aware encoding is left as a follow-up experiment.}
+\label{tab:cifar10}
 \end{table}
 
 \subsection{Eikonal equation}
 
 The repository includes a reference fast-marching Eikonal solver against which
-the \texttt{wave} reservoir's arrival-time field can be compared. A full
-quantitative study is left for future work.
+the \texttt{wave} reservoir's arrival-time field is compared. We report mean
+relative arrival-time error for a constant-speed field with variable source
+and for a radial speed field:
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lllc}
+\toprule
+Grid & Source & Speed field & Mean rel.\ err. \\
+\midrule
+$32{\times}32$ & center     & constant & 0.064 \\
+$64{\times}64$ & center     & constant & 0.066 \\
+$64{\times}64$ & off-center & constant & 0.313 \\
+$64{\times}64$ & center     & radial   & 0.047 \\
+\bottomrule
+\end{tabular}
+\caption{The \texttt{wave} reservoir is a crude wave simulator, not an Eikonal
+solver; the $\sim$30\% error for off-center sources is driven by boundary
+reflections under the periodic topology and is documented rather than hidden.}
+\label{tab:eikonal}
+\end{table}
 
 \section{Limitations}
 
@@ -235,7 +294,10 @@ Linux/macOS/Windows and Python~3.10/3.11/3.12.
 reservoir substrate with a linear readout --- into a tested, honest, and
 reusable library. It is not a new deep-learning state of the art, and it is
 not claimed to be. It is a clean testbed for reservoir-computing research
-that happens to run fast on commodity GPUs.
+that happens to run fast on commodity GPUs. The v0.3 batched CUDA backend
+amortises host/device transfers across an entire batch and reaches
+near-peak speedups of $12$--$18\times$ over the NumPy backend on an RTX~3090,
+while preserving accuracy parity with the CPU reference on MNIST.
 
 \section*{Availability}
 
