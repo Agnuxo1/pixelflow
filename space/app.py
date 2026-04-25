@@ -231,23 +231,20 @@ def visualize_ca(rule: str, grid_size: int, steps: int) -> plt.Figure:
 # ---------------------------------------------------------------------------
 
 def _preprocess_sketchpad(sketchpad_input) -> np.ndarray | None:
-    """Convert Gradio sketchpad output to a (784,) float32 array in [0, 1].
+    """Convert Gradio ImageEditor output to a (784,) float32 array in [0, 1].
 
-    Gradio 4.x sketchpad can return:
-      - a dict with keys 'background', 'layers', 'composite'
-      - a PIL Image
-      - a numpy array
-      - None (empty canvas)
+    Gradio 5.x ImageEditor returns a dict with keys:
+      'background', 'layers' (list of PIL Images), 'composite' (PIL Image)
+    or None for an empty canvas.
     """
     if sketchpad_input is None:
         return None
 
-    # Handle dict (Gradio ImageEditor / Sketchpad)
+    # Handle dict (Gradio 5 ImageEditor output)
     if isinstance(sketchpad_input, dict):
-        # Prefer 'composite' (merged layers), fall back to 'background'
+        # Prefer 'composite' (merged drawing), fall back to 'background'
         img_data = sketchpad_input.get("composite") or sketchpad_input.get("background")
         if img_data is None:
-            # Try layers list
             layers = sketchpad_input.get("layers", [])
             img_data = layers[0] if layers else None
         if img_data is None:
@@ -400,10 +397,16 @@ with gr.Blocks(title="pixelflow — GPU Texture Reservoir Computing") as demo:
         )
         with gr.Row():
             with gr.Column(scale=1):
-                sketchpad = gr.Sketchpad(
+                sketchpad = gr.ImageEditor(
                     label="Draw a digit here",
                     type="pil",
-                    canvas_size=(224, 224),
+                    sources=[],           # disable file-upload; drawing only
+                    transforms=[],        # disable crop/rotate
+                    brush=gr.Brush(
+                        default_size=14,
+                        colors=["#000000"],
+                        color_mode="fixed",
+                    ),
                 )
                 classify_btn = gr.Button("Classify")
                 label_out = gr.Textbox(label="Result", interactive=False)
