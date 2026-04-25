@@ -1,6 +1,6 @@
 ---
 title: pixelflow
-emoji: ⟲
+emoji: 🌊
 colorFrom: blue
 colorTo: purple
 sdk: gradio
