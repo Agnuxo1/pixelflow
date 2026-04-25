@@ -7,14 +7,15 @@ readout on top for image classification, PDE solving, and time-series tasks.
 
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue)](https://www.python.org/)
+[![PyPI](https://img.shields.io/pypi/v/pixelflow-rc)](https://pypi.org/project/pixelflow-rc/)
 [![Status](https://img.shields.io/badge/status-alpha-orange)]()
 [![HF Space](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Space-yellow)](https://huggingface.co/spaces/Agnuxo1/pixelflow)
 
 > **Live demo:** <https://huggingface.co/spaces/Agnuxo1/pixelflow>
 
-> **Status: v0.1.0 alpha.** The core is functional and tested; performance work
-> and extra backends are in progress. This library is research software — it does
-> not claim to beat state-of-the-art CNNs, but it is a clean, reproducible
+> **Status: v0.3.0 alpha.** The core is functional and tested. Batched CUDA backend
+> achieves 17.95× speedup over CPU (RTX 3090). This library is research software — it
+> does not claim to beat state-of-the-art CNNs, but it is a clean, reproducible
 > implementation of a legitimate reservoir-computing idea, and it is honest about
 > what works and what doesn't.
 
@@ -43,12 +44,15 @@ Three built-in rules:
 
 ## Install
 
+> **PyPI package name is `pixelflow-rc`** (the name `pixelflow` on PyPI is taken
+> by an unrelated library). The import name remains `import pixelflow`.
+
 ```bash
-pip install pixelflow              # core + CPU backend
-pip install pixelflow[gpu]         # adds moderngl + glfw (OpenGL 3.3 GPU backend)
-pip install pixelflow[cuda]        # adds cupy-cuda12x (CUDA backend)
-pip install pixelflow[datasets]    # adds torchvision / pillow for dataset loaders
-pip install pixelflow[all]         # everything
+pip install pixelflow-rc              # core + CPU backend
+pip install pixelflow-rc[gpu]         # adds moderngl + glfw (OpenGL 3.3 GPU backend)
+pip install pixelflow-rc[cuda]        # adds cupy-cuda12x (CUDA backend)
+pip install pixelflow-rc[datasets]    # adds torchvision / pillow for dataset loaders
+pip install pixelflow-rc[all]         # everything
 ```
 
 ## Quickstart
