@@ -19,6 +19,13 @@ status and links. No aspirational entries — only things actually done.
 | LlamaIndex adapter | `integrations/llamahub/` | Standalone `PixelflowReservoirPack`; distributed via `pixelflow-rc` on PyPI. |
 | Open WebUI tool | `integrations/open-webui/pixelflow_tool.py` | Drop-in `Tools` class. Upload via openwebui.com UI (no automated API). |
 
+## PRs submitted (pending maintainer review)
+
+| List | PR | Entry |
+|---|---|---|
+| artiomn/awesome-neuromorphic | <https://github.com/artiomn/awesome-neuromorphic/pull/6> | Spiking and Neuromorphic Frameworks section, alphabetical between PeleNet and PyNN |
+| ChristosChristofidis/awesome-deep-learning | <https://github.com/ChristosChristofidis/awesome-deep-learning/pull/304> | Frameworks section, item 71 |
+
 ## Investigated and deliberately skipped
 
 | Channel | Reason |
