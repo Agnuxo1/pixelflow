@@ -9,9 +9,9 @@ readout on top for image classification, PDE solving, and time-series tasks.
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue)](https://www.python.org/)
 [![PyPI](https://img.shields.io/pypi/v/pixelflow-rc)](https://pypi.org/project/pixelflow-rc/)
 [![Status](https://img.shields.io/badge/status-alpha-orange)]()
-[![HF Space](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Space-yellow)](https://huggingface.co/spaces/Agnuxo1/pixelflow)
+[![HF Space](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Space-yellow)](https://huggingface.co/spaces/Agnuxo/pixelflow)
 
-> **Live demo:** <https://huggingface.co/spaces/Agnuxo1/pixelflow>
+> **Live demo:** <https://huggingface.co/spaces/Agnuxo/pixelflow>
 
 > **Status: v0.3.0 alpha.** The core is functional and tested. Batched CUDA backend
 > achieves 17.95× speedup over CPU (RTX 3090). This library is research software — it
@@ -184,7 +184,7 @@ If you use `pixelflow` in research, please cite:
   title   = {pixelflow: GPU Texture Reservoir Computing},
   year    = {2026},
   version = {0.1.0},
-  url     = {https://github.com/Agnuxo1/pixelflow},
+  url     = {https://github.com/Agnuxo/pixelflow},
   license = {Apache-2.0}
 }
 ```
