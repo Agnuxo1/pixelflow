@@ -7,22 +7,17 @@ status and links. No aspirational entries — only things actually done.
 
 | Channel | URL | Status | Date |
 |---|---|---|---|
-| GitHub repo | <https://github.com/Agnuxo1/pixelflow> | Live, v0.3.0 released | 2026-04-24 |
+| GitHub repo | <https://github.com/Agnuxo1/pixelflow> | Live, v0.3.0 | 2026-04-24 |
 | GitHub release v0.3.0 | <https://github.com/Agnuxo1/pixelflow/releases/tag/v0.3.0> | Live | 2026-04-24 |
+| PyPI (`pixelflow-rc`) | <https://pypi.org/project/pixelflow-rc/0.3.0/> | Live | 2026-04-25 |
+| HuggingFace Space | <https://huggingface.co/spaces/Agnuxo/pixelflow> | Running (Gradio 5) | 2026-04-25 |
 
-## Prepared, awaiting credentials
-
-| Channel | Notes |
-|---|---|
-| PyPI (`pixelflow-rc`) | Dist built (`dist/pixelflow_rc-0.3.0*`), passes `twine check`. Name `pixelflow` on PyPI is taken by an unrelated CV library, so the dist name is `pixelflow-rc` (import remains `import pixelflow`). Upload blocked: provided API token returns `403 Invalid API Token: current user does not match user restriction in token`. Needs a fresh token from the PyPI account owner. |
-| HuggingFace Space | Code in `space/` is complete (Gradio 4.x, 2 tabs). `huggingface-cli` not authenticated in this environment. |
-
-## In preparation
+## Integrations (in repo, ready to use)
 
 | Channel | Artifact | Notes |
 |---|---|---|
-| LlamaIndex adapter | `integrations/llamahub/` | End-to-end smoke test passing against `llama-index-core` 0.12+. Standalone class, no upstream PR needed — can be distributed via PyPI `pixelflow-rc` directly. |
-| Open WebUI tool | `integrations/open-webui/` | End-to-end smoke test passing. Upload to openwebui.com via the tool-creator UI — no automated API, manual step for user. |
+| LlamaIndex adapter | `integrations/llamahub/` | Standalone `PixelflowReservoirPack`; distributed via `pixelflow-rc` on PyPI. |
+| Open WebUI tool | `integrations/open-webui/pixelflow_tool.py` | Drop-in `Tools` class. Upload via openwebui.com UI (no automated API). |
 
 ## Investigated and deliberately skipped
 
@@ -30,25 +25,19 @@ status and links. No aspirational entries — only things actually done.
 |---|---|
 | `reservoirpy/awesome-reservoir-computing` | Last push 2021-11, effectively abandoned. |
 | `janhq/awesome-local-ai` | LLM-centric; pixelflow is not an LLM tool. Submitting would be spam. |
-| `open-neuromorphic/open-neuromorphic` | Curated SNN list with a strict table/image format; pixelflow is reservoir computing, not SNN — off-topic. |
-| LangChain / CrewAI / Haystack wrappers | Trivial wrapper with no real value beyond the LlamaIndex adapter. Would pad the project without substance. |
-| LlamaHub PR to `run-llama/llama_index` | `BaseLlamaPack` removed in 0.12 restructure; packs as a concept are deprecated upstream. Proper `llama-index-integrations` PR is a multi-day effort with CI constraints — not worth half-baking. |
-| VS Code / JetBrains / Chrome extensions | No meaningful UI surface for a numeric research library. Won't submit placeholder extensions. |
+| `open-neuromorphic/open-neuromorphic` | Curated SNN list with strict format; reservoir computing ≠ SNN — off-topic. |
+| LangChain / CrewAI / Haystack wrappers | No real value beyond the LlamaIndex adapter. |
+| LlamaHub PR to `run-llama/llama_index` | `BaseLlamaPack` removed in 0.12; packs deprecated upstream. Multi-day CI effort — not worth half-baking. |
+| VS Code / JetBrains / Chrome extensions | No meaningful UI surface for a numeric research library. |
+| Play Store / App Store | Out of scope for v0.x. |
 
-## Deferred (require user credentials or review)
+## Deferred (require user action)
 
-- Chrome Web Store, VS Code Marketplace, JetBrains Marketplace — no natural
-  browser/IDE surface for a numeric reservoir library yet. Will add only when
-  a real integration exists, not to pad the list.
-- Play Store / App Store — out of scope for v0.x. A mobile demo would need
-  substantial extra work; honest to defer.
-- arXiv — explicit user instruction: user submits personally. Bundle in
-  `paper/arxiv/`.
+- **arXiv** — explicit user instruction: user submits personally. Bundle ready in `paper/arxiv/`.
+- **openwebui.com listing** — requires manual upload via the tool-creator web UI; no automated API.
 
 ## Principles
 
-- No spam. One well-targeted entry per list, with working install + link to
-  measured benchmarks.
+- No spam. One well-targeted entry per list, with working install + measured benchmarks.
 - No fake stars, no sockpuppets, no review theater.
-- Every entry links back to a reproducible command and a JSON artifact under
-  `benchmarks/results/`.
+- Every entry links to a reproducible command and a JSON artifact under `benchmarks/results/`.
