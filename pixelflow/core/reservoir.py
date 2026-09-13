@@ -70,7 +70,7 @@ class Reservoir:
         """X: (N, D_in) float array. Returns (N, feature_dim) float32 features.
 
         For the ``cuda`` backend all N samples are encoded on CPU first (each
-        with its own deterministic RNG seed), then the full (N, H, W, C) batch
+        with the same deterministic feature-map seed), then the full (N, H, W, C) batch
         is transferred to GPU in one shot, evolved for ``steps`` iterations,
         and copied back once.  This amortises host<->device transfer overhead
         and lets cupy process all N samples with a single set of kernel
@@ -90,12 +90,12 @@ class Reservoir:
         if self.backend == "cuda":
             from pixelflow.backends.cuda_backend import run_cuda_batch
 
-            # Phase 1: encode all samples on CPU (preserves per-sample seeding).
+            # A fixed reservoir must use the same projection for every sample.
             initial_states = np.empty(
                 (N, c.height, c.width, c.channels), dtype=np.float32
             )
             for i, x in enumerate(X):
-                rng_enc = np.random.default_rng([c.seed, i])
+                rng_enc = np.random.default_rng([c.seed, 0])
                 initial_states[i] = self._encoder(
                     x, c.height, c.width, c.channels, rng_enc
                 )
@@ -124,9 +124,9 @@ class Reservoir:
                 return run_moderngl(initial, rule, steps, rng, rule_params=params)
 
         for i, x in enumerate(X):
-            rng = np.random.default_rng([c.seed, i])
+            rng = np.random.default_rng([c.seed, 0])
             initial = self._encoder(x, c.height, c.width, c.channels, rng)
-            rng_evo = np.random.default_rng([c.seed, i, 1])
+            rng_evo = np.random.default_rng([c.seed, 0, 1])
             final = runner(initial, self._rule, c.rule_params, c.steps, rng_evo)
             features[i] = final.astype(np.float32).ravel()
 
