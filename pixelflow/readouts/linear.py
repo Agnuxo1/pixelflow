@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import numpy as np
-from sklearn.linear_model import Ridge, RidgeClassifier, LogisticRegression
+from sklearn.linear_model import LogisticRegression, Ridge, RidgeClassifier
 
 
 class RidgeReadout:
@@ -38,7 +38,7 @@ class RidgeReadout:
             return "classification"
         return "regression"
 
-    def fit(self, features: np.ndarray, y: np.ndarray) -> "RidgeReadout":
+    def fit(self, features: np.ndarray, y: np.ndarray) -> RidgeReadout:
         """Fit on (N, D) features and labels/targets y."""
         self._resolved_task = self._resolve_task(y)
         if self._resolved_task == "classification":
@@ -77,7 +77,7 @@ class LogisticReadout:
         self.max_iter = max_iter
         self._model: LogisticRegression | None = None
 
-    def fit(self, features: np.ndarray, y: np.ndarray) -> "LogisticReadout":
+    def fit(self, features: np.ndarray, y: np.ndarray) -> LogisticReadout:
         """Fit on (N, D) features and integer class labels y."""
         self._model = LogisticRegression(C=self.C, max_iter=self.max_iter)
         self._model.fit(features, y)

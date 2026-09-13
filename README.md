@@ -85,14 +85,45 @@ Run the bundled example:
 python examples/quickstart.py
 ```
 
+## scikit-learn pipelines
+
+Use the third-party `ReservoirTransformer` adapter with scikit-learn's
+`Pipeline`, `GridSearchCV`, and cross-validation. This is compatibility code
+maintained here, not an upstream scikit-learn integration or endorsement.
+
+```python
+from sklearn.pipeline import make_pipeline
+from sklearn.linear_model import LogisticRegression
+from pixelflow.sklearn import ReservoirTransformer
+
+pipeline = make_pipeline(ReservoirTransformer(cfg), LogisticRegression(max_iter=500))
+pipeline.fit(X_train, y_train)
+print(pipeline.score(X_test, y_test))
+```
+
+The adapter accepts finite two-dimensional numeric arrays. `fit` records the
+input column count and snapshots the reservoir configuration; the downstream
+estimator learns the labels. CPU is the default; GPU dependencies remain optional.
+See `examples/sklearn_pipeline.py` for a download-free cross-validation example.
+
+### Reproducibility correction (September 2026)
+
+The projection encoder previously seeded its random matrix using the row index.
+Consequently, reordering rows or predicting one sample at a time changed the
+features. Encoding and CPU stochastic evolution now use fixed seeds per sample,
+independent of row position. Existing readouts trained with `project` encoding
+or CPU `life_like` noise must be retrained. Historical results below are retained
+as historical measurements, not revalidated results of the corrected version.
+Re-run affected benchmarks before using them for comparative claims.
+
 ## Backends
 
 - **`cpu`** — pure NumPy. Always available. Reference implementation.
 - **`moderngl`** — headless OpenGL 3.3 core via moderngl. Requires a GPU with
-  working OpenGL drivers. Install with `pip install pixelflow[gpu]`.
+  working OpenGL drivers. Install with `pip install "pixelflow-rc[gpu]"`.
 - **`cuda`** — CuPy-backed CUDA implementation. Requires an NVIDIA GPU and
   matching CUDA toolkit (12.x or 13.x). Install with
-  `pip install pixelflow[cuda]`.
+  `pip install "pixelflow-rc[cuda]"`.
 
 All three backends produce numerically equivalent outputs (CPU vs moderngl:
 max abs diff < 1e-5; CPU vs CUDA: max abs diff < 1e-3), verified in

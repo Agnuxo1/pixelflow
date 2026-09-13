@@ -96,7 +96,6 @@ def _nearest_resize(img: np.ndarray, out_h: int, out_w: int) -> np.ndarray:
 
 def _avgpool_resize(img: np.ndarray, out_h: int, out_w: int) -> np.ndarray:
     """Resize img to (out_h, out_w) via bilinear average-pool (pure numpy)."""
-    in_h, in_w = img.shape
     # Use nearest-neighbour for simplicity when aspect is non-integer
     # (pure numpy, no scipy)
     return _nearest_resize(img, out_h, out_w)

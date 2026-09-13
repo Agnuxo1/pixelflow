@@ -3,7 +3,7 @@
 import numpy as np
 import pytest
 
-from pixelflow.tasks.synthetic import two_moons, checkerboard
+from pixelflow.tasks.synthetic import checkerboard, two_moons
 
 
 @pytest.fixture(scope="session")

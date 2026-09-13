@@ -3,7 +3,7 @@
 import numpy as np
 import pytest
 
-from pixelflow.readouts import RidgeReadout, LogisticReadout
+from pixelflow.readouts import LogisticReadout, RidgeReadout
 
 
 class TestRidgeReadout:
