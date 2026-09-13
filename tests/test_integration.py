@@ -5,7 +5,6 @@ This test is skipped if pixelflow.core.reservoir is not yet available
 the test exercises the full pipeline.
 """
 
-import numpy as np
 import pytest
 
 reservoir_mod = pytest.importorskip(
@@ -13,9 +12,9 @@ reservoir_mod = pytest.importorskip(
     reason="pixelflow.core.reservoir not available yet",
 )
 
-from pixelflow.core.reservoir import Reservoir, ReservoirConfig  # noqa: E402
-from pixelflow.readouts import RidgeReadout  # noqa: E402
-from pixelflow.tasks.synthetic import two_moons  # noqa: E402
+from pixelflow.core.reservoir import Reservoir, ReservoirConfig
+from pixelflow.readouts import RidgeReadout
+from pixelflow.tasks.synthetic import two_moons
 
 
 def test_reservoir_ridge_two_moons():

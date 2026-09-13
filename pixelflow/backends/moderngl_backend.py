@@ -9,6 +9,8 @@ Matches the CPU backend signature exactly.
 
 from __future__ import annotations
 
+import logging
+
 import numpy as np
 
 from pixelflow.core.rules import RuleSpec
@@ -195,4 +197,4 @@ def run_moderngl(
         try:
             ctx.release()
         except Exception:
-            pass
+            logging.getLogger(__name__).warning("Failed to release GL context", exc_info=True)

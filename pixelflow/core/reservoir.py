@@ -7,8 +7,8 @@ from dataclasses import dataclass, field
 
 import numpy as np
 
-from pixelflow.core.rules import get_rule, RuleSpec
 from pixelflow.core.encoding import get_encoder
+from pixelflow.core.rules import RuleSpec, get_rule
 
 logger = logging.getLogger(__name__)
 

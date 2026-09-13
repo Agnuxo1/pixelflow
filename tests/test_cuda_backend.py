@@ -6,8 +6,8 @@ Tests are skipped automatically when cupy is unavailable.
 
 from __future__ import annotations
 
-import sys
 import builtins
+import sys
 
 import numpy as np
 import pytest
@@ -112,6 +112,7 @@ def test_run_cuda_import_error_without_cupy(monkeypatch: pytest.MonkeyPatch) -> 
         monkeypatch.setattr(builtins, "__import__", _blocked_import)
 
         import importlib
+
         import pixelflow.backends.cuda_backend as _mod  # noqa: F401 — fresh import
 
         # Force reimport with blocked cupy

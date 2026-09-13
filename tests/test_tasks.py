@@ -3,8 +3,8 @@
 import numpy as np
 import pytest
 
-from pixelflow.tasks.synthetic import two_moons, checkerboard
 from pixelflow.tasks.eikonal import solve_reference
+from pixelflow.tasks.synthetic import checkerboard, two_moons
 
 
 class TestTwoMoons:
@@ -104,7 +104,7 @@ def test_mnist_load_shapes():
     pytest.importorskip("sklearn.datasets")
     from pixelflow.tasks.mnist import load
 
-    X_train, y_train, X_test, y_test = load(subset=500, seed=0)
+    X_train, y_train, X_test, _y_test = load(subset=500, seed=0)
     assert X_train.shape == (500, 784)
     assert y_train.shape == (500,)
     assert X_test.shape[1] == 784
