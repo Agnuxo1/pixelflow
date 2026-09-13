@@ -7,6 +7,8 @@ context cannot be created on the current machine.
 
 from __future__ import annotations
 
+import logging
+
 import numpy as np
 import pytest
 
@@ -25,6 +27,7 @@ def gpu_available() -> bool:
         ctx.release()
         return True
     except Exception:
+        logging.getLogger(__name__).warning("GL context unavailable", exc_info=True)
         return False
 
 
@@ -108,8 +111,8 @@ def test_gpu_determinism(gpu_available, rule_name):
 
 def test_run_moderngl_import_error_without_moderngl(monkeypatch):
     """If moderngl is not importable, run_moderngl should raise ImportError."""
-    import sys
     import builtins
+    import sys
 
     real_import = builtins.__import__
 

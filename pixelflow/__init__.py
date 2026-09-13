@@ -10,12 +10,12 @@ License: Apache-2.0
 
 from pixelflow._version import __version__
 from pixelflow.core.reservoir import Reservoir, ReservoirConfig
-from pixelflow.readouts.linear import RidgeReadout, LogisticReadout
+from pixelflow.readouts.linear import LogisticReadout, RidgeReadout
 
 __all__ = [
-    "__version__",
+    "LogisticReadout",
     "Reservoir",
     "ReservoirConfig",
     "RidgeReadout",
-    "LogisticReadout",
+    "__version__",
 ]

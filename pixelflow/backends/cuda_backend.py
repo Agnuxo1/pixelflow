@@ -23,7 +23,6 @@ import numpy as np
 
 from pixelflow.core.rules import RuleSpec
 
-
 # ---------------------------------------------------------------------------
 # cupy import — optional dependency
 # ---------------------------------------------------------------------------
@@ -52,7 +51,7 @@ def _require_cupy() -> None:
 # axis=0 N, axis=1 H (row roll), axis=2 W (col roll), axis=3 C
 # ---------------------------------------------------------------------------
 
-def _dr_step_batch(state: "cp.ndarray", params: dict) -> "cp.ndarray":
+def _dr_step_batch(state: cp.ndarray, params: dict) -> cp.ndarray:
     """Gray-Scott reaction-diffusion — one step on GPU, batched (N,H,W,C)."""
     feed = float(params.get("feed", 0.055))
     kill = float(params.get("kill", 0.062))
@@ -84,7 +83,7 @@ def _dr_step_batch(state: "cp.ndarray", params: dict) -> "cp.ndarray":
     return out
 
 
-def _ll_step_batch(state: "cp.ndarray", params: dict) -> "cp.ndarray":
+def _ll_step_batch(state: cp.ndarray, params: dict) -> cp.ndarray:
     """Life-like CA (continuous Conway) — one step on GPU, batched (N,H,W,C).
 
     Noise is omitted in the GPU path (matches existing per-sample CUDA behaviour
@@ -114,7 +113,7 @@ def _ll_step_batch(state: "cp.ndarray", params: dict) -> "cp.ndarray":
     return out
 
 
-def _wv_step_batch(state: "cp.ndarray", params: dict) -> "cp.ndarray":
+def _wv_step_batch(state: cp.ndarray, params: dict) -> cp.ndarray:
     """Discrete wave equation — one step on GPU, batched (N,H,W,C)."""
     c       = float(params.get("c",       0.5))
     damping = float(params.get("damping", 0.999))
@@ -153,7 +152,7 @@ _CUDA_BATCH_STEP = {
 # run_cuda when called directly without going through run_cuda_batch).
 # These are the original v0.2 functions renamed with _3d suffix.
 
-def _dr_step_cuda(state: "cp.ndarray", params: dict) -> "cp.ndarray":
+def _dr_step_cuda(state: cp.ndarray, params: dict) -> cp.ndarray:
     """Gray-Scott — one step on GPU, single (H,W,C) array."""
     feed = float(params.get("feed", 0.055))
     kill = float(params.get("kill", 0.062))
@@ -185,7 +184,7 @@ def _dr_step_cuda(state: "cp.ndarray", params: dict) -> "cp.ndarray":
     return out
 
 
-def _ll_step_cuda(state: "cp.ndarray", params: dict) -> "cp.ndarray":
+def _ll_step_cuda(state: cp.ndarray, params: dict) -> cp.ndarray:
     """Life-like CA — one step on GPU, single (H,W,C) array."""
     threshold = float(params.get("threshold", 0.5))
 
@@ -210,7 +209,7 @@ def _ll_step_cuda(state: "cp.ndarray", params: dict) -> "cp.ndarray":
     return out
 
 
-def _wv_step_cuda(state: "cp.ndarray", params: dict) -> "cp.ndarray":
+def _wv_step_cuda(state: cp.ndarray, params: dict) -> cp.ndarray:
     """Discrete wave equation — one step on GPU, single (H,W,C) array."""
     c       = float(params.get("c",       0.5))
     damping = float(params.get("damping", 0.999))

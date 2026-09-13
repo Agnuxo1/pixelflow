@@ -1,5 +1,5 @@
 """Readout layers for pixelflow."""
 
-from .linear import RidgeReadout, LogisticReadout
+from .linear import LogisticReadout, RidgeReadout
 
-__all__ = ["RidgeReadout", "LogisticReadout"]
+__all__ = ["LogisticReadout", "RidgeReadout"]
