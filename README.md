@@ -131,6 +131,17 @@ max abs diff < 1e-5; CPU vs CUDA: max abs diff < 1e-3), verified in
 
 ## Benchmarks
 
+### September 2026: corrected projection validation
+
+The corrected encoder and scikit-learn adapter have a download-free,
+five-split evaluation with raw-input and projection-only baselines.
+On the bundled 8x8 digits dataset (not MNIST), mean accuracy was 96.978%
+for the reservoir and 96.933% for the raw-input baseline. Two split wins
+and three losses do **not** establish superiority.
+See the [protocol, raw results and reproduction command](docs/VALIDATION_2026_09.md).
+
+### Historical benchmarks
+
 All numbers below are measured (raw JSON under `benchmarks/results/`) on
 Windows 10 + Python 3.13, RTX 3090 + Ryzen 5950X. Losses vs. baseline are
 reported as-is, never hidden.
