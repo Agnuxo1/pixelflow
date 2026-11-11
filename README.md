@@ -21,6 +21,10 @@ readout on top for image classification, PDE solving, and time-series tasks.
 
 ---
 
+<!-- impact-note:start -->
+<sub><strong>Efficiency and practical value.</strong> A fixed texture reservoir with a trainable linear readout provides reusable features without training every dynamical unit. CPU, OpenGL and CUDA backends let researchers compare implementations within the same interface. The practical value is inexpensive readout fitting and repeatable experiments; historical speedups should be reassessed after the encoding correction described in the <a href="docs/VALIDATION_2026_09.md">validation record</a>.</sub>
+<!-- impact-note:end -->
+
 ## What it is
 
 Reservoir computing separates a dynamical system (the "reservoir") from a simple
